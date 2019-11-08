@@ -14,19 +14,14 @@
  * Copyright 2018 ForgeRock AS.
  */
 
-package com.example.vmware;
+package com.example.microsoft;
 
 import java.util.Collections;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import org.forgerock.openam.auth.node.api.AbstractNodeAmPlugin;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.plugins.PluginException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -60,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * @supported.all.api
  * @since AM 5.5.0
  */
-public class VMWarePlugin extends AbstractNodeAmPlugin {
+public class IntunePlugin extends AbstractNodeAmPlugin {
 
 	static private String currentVersion = "1.0.0";
 	
@@ -72,8 +67,8 @@ public class VMWarePlugin extends AbstractNodeAmPlugin {
      */
 	@Override
 	protected Map<String, Iterable<? extends Class<? extends Node>>> getNodesByVersion() {
-		return Collections.singletonMap(VMWarePlugin.currentVersion, 
-				Collections.singletonList(VMWare.class));
+		return Collections.singletonMap(IntunePlugin.currentVersion,
+				Collections.singletonList(Intune.class));
 	}
 
     /** 
@@ -121,6 +116,6 @@ public class VMWarePlugin extends AbstractNodeAmPlugin {
      */
 	@Override
 	public String getPluginVersion() {
-		return VMWarePlugin.currentVersion;
+		return IntunePlugin.currentVersion;
 	}
 }

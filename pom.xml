@@ -26,7 +26,7 @@
         <version>6.0.0</version>
     </parent>
 
-    <artifactId>VMWare</artifactId>
+    <artifactId>Intune</artifactId>
 
     <groupId>com.example</groupId>
     <version>1.0.0-SNAPSHOT</version>    

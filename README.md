@@ -1,18 +1,4 @@
-<!--
- * The contents of this file are subject to the terms of the Common Development and
- * Distribution License (the License). You may not use this file except in compliance with the
- * License.
- *
- * You can obtain a copy of the License at legal/CDDLv1.0.txt. See the License for the
- * specific language governing permission and limitations under the License.
- *
- * When distributing Covered Software, include this CDDL Header Notice in each file and include
- * the License file at legal/CDDLv1.0.txt. If applicable, add the following below the CDDL
- * Header, with the fields enclosed by brackets [] replaced by your own identifying
- * information: "Portions copyright [year] [name of copyright owner]".
- *
- * Copyright ${data.get('yyyy')} ForgeRock AS.
--->
+
 # Device Posture
 
 A simple authentication node for ForgeRock's [Identity Platform][forgerock_platform] 6.5 and above. This node... **SHORT DESCRIPTION HERE**
@@ -21,9 +7,53 @@ A simple authentication node for ForgeRock's [Identity Platform][forgerock_platf
 Copy the .jar file from the ../target directory into the ../web-container/webapps/openam/WEB-INF/lib directory where AM is deployed.  Restart the web container to pick up the new node.  The node will then appear in the authentication trees components palette.
 
 
-**USAGE HERE**
+cURL statements to be used for testing:
+getting an access token:
 
-
+curl -X POST \
+  https://login.microsoftonline.com/94781b09-3000-41eb-93bc-c7915241c40e/oauth2/v2.0/token \
+  -H 'Accept: */*' \
+  -H 'Accept-Encoding: gzip, deflate' \
+  -H 'Cache-Control: no-cache' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Length: 275' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -H 'Cookie: x-ms-gateway-slice=prod; stsservicecookie=ests; fpc=AtHZFoCUNT9JpXi2C8G9irlG0RR2AQAAAHOtV9UOAAAA' \
+  -H 'Host: login.microsoftonline.com' \
+  -H 'User-Agent: PostmanRuntime/7.19.0' \
+  -H 'cache-control: no-cache' \
+  -d 'Content-Type=application%2Fx-www-form-urlencoded&client_id=cb17ccd4-0e70-48dc-a694-e6910418c70b&client_secret=%5Ba)PaGdK1*%7C0Ci1q&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&grant_type=password&username=info%40javaservlets.onmicrosoft.com&password=Ch2019angeit!'
+  
+ retrieving a device ID's compliancy:
+ curl -X GET \
+   https://graph.microsoft.com/v1.0/deviceManagement/manageddevices/988f8437-99b4-470d-9b60-087b65dc1649 \
+   -H 'Authorization: (the token from above)
+ 
+ Scratch File:
+ 
+ import com.example.microsoft.UserInfo;
+ import org.forgerock.openam.annotations.sm.Attribute;
+ 
+ class Scratch {
+     public static void main(String[] args) {
+         String device_id="988f8437-99b4-470d-9b60-087b65dc1649"; // noncompliant ipad id =
+         String device_id2="32e2fd8d-aa20-4557-b862-cb915e5ad640";
+ 
+         String msScope="https://graph.microsoft.com/.default";
+         String msClientId="cb17ccd4-0e70-48dc-a694-e6910418c70b";
+         String msClientSecret="[a)PaGdK1*|0Ci1q";
+         String msTokenUrl="https://login.microsoftonline.com/94781b09-3000-41eb-93bc-c7915241c40e/oauth2/v2.0/token";
+         String msComplianceUrl="https://graph.microsoft.com/v1.0/deviceManagement/manageddevices/";
+         String msAdmin="info@javaservlets.onmicrosoft.com";
+         String msPassword="Ch2019angeit!";
+ 
+         UserInfo userinfo=new UserInfo(msTokenUrl, msScope, msAdmin, msPassword, msClientId, msClientSecret);
+         userinfo.getStatus(msComplianceUrl, device_id);
+ 
+ 
+     }
+ }
+ 
 The code in this repository has binary dependencies that live in the ForgeRock maven repository. Maven can be configured to authenticate to this repository by following the following [ForgeRock Knowledge Base Article](https://backstage.forgerock.com/knowledge/kb/article/a74096897).
 
 **SPECIFIC BUILD INSTRUCTIONS HERE**

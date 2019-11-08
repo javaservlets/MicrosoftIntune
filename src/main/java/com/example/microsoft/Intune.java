@@ -1,4 +1,4 @@
-package com.example.vmware;
+package com.example.microsoft;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -12,26 +12,24 @@ import org.forgerock.util.i18n.PreferredLocales;
 
 import java.util.List;
 
-import static org.forgerock.openam.auth.node.api.Action.goTo;
+@Node.Metadata(outcomeProvider = Intune.MyOutcomeProvider.class, configClass = Intune.Config.class)
 
-@Node.Metadata(outcomeProvider = VMWare.MyOutcomeProvider.class, configClass = VMWare.Config.class)
-
-public class VMWare implements Node {
+public class Intune implements Node {
     private final Config config;
     private final CoreWrapper coreWrapper;
-    private final static String DEBUG_FILE = "vmWare";
+    private final static String DEBUG_FILE = "microsoft";
     protected Debug debug = Debug.getInstance(DEBUG_FILE);
     JsonValue context_json;
 
     @Override
     public Action process(TreeContext context) throws NodeProcessException {
-        debug.error("+++     starting vmware");
+        debug.error("+++     starting microsoft");
 
         context_json = context.sharedState.copy();
         String search_key = context_json.get("device_id").asString();
 
-        UserInfo userinfo = new UserInfo(config.awServer(), config.awKey(), config.awAdmin(), config.awPassword());
-        String status = userinfo.getStatus(config.awIsCompliant(), search_key); // qry could be for either "is" ENROLLED or COMPLIANT
+        UserInfo userinfo = new UserInfo(config.msTokenUrl(), config.msScope(), config.msAdmin(), config.msPassword(), config.msClientId(), config.msClientSecret());
+        String status = userinfo.getStatus(config.msComplianceUrl(), search_key); // qry could be for either "is" ENROLLED or COMPLIANT
         Action action = null ;
 
         if (status.equals("compliant")) {
@@ -84,35 +82,45 @@ public class VMWare implements Node {
     public interface Config {
 
         @Attribute(order = 100)
-        default String awServer() {
-            return "https://as1506.awmdm.com";
+        default String msScope() {
+            return "https://graph.microsoft.com/.default";
         }
 
         @Attribute(order = 200)
-        default String awKey() {
-            return "0/Sdna8d8oLI9BZpPp6ZE1TGB4hkVKayc9cZVTznblw=";
+        default String msClientId() {
+            return "cb17ccd4-0e70-48dc-a694-e6910418c70b";
+        }
+
+        @Attribute(order = 300)
+        default String msClientSecret() {
+            return "[a)PaGdK1*|0Ci1q";
+        }
+
+        @Attribute(order = 400)
+        default String msTokenUrl() {
+            return "https://login.microsoftonline.com/94781b09-3000-41eb-93bc-c7915241c40e/oauth2/v2.0/token";
         }
 
         @Attribute(order = 500)
-        default String awIsCompliant() {
-            return "API/mdm/devices/compliance?searchBy=Udid&id=";
+        default String msComplianceUrl() {
+            return "https://graph.microsoft.com/v1.0/deviceManagement/manageddevices/";
         }
 
         @Attribute(order = 600)
-        default String awAdmin() {
-            return "email@javaservlets.net";
+        default String msAdmin() {
+            return "info@javaservlets.onmicrosoft.com";
         }
 
         @Attribute(order = 700)
-        default String awPassword() {
-            return "Passw0rd";
+        default String msPassword() {
+            return "Ch2019angeit!";
         }
 
     }
 
 
     @Inject
-    public VMWare(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
+    public Intune(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
         this.config = config;
         this.coreWrapper = coreWrapper;
     }
