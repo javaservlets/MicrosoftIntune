@@ -1,67 +1,66 @@
 
-# Device Posture
+![image alt text](./config/logo.png)
 
-A simple authentication node for ForgeRock's [Identity Platform][forgerock_platform] 6.5 and above. This node... **SHORT DESCRIPTION HERE**
+# Device Posture - Microsoft Intune
+
+This ForgeRock Authentication Tree queries a Mobile Device Management (MDM) system to see whether or not the end-user's device satisfies a Compliance Policy (ie, checks it's "Device Posture") before it is allowed to access a protected resource.
+
+A unique identifier is needed for said query, thus you need to leverage the MDM's capability to issue and distribute x509 "mutual certificates" (also known as "browser" or "client" certificates) to each device it enrolls, with the device's unique identifier (populated in the 'CN' field of the x509 certificate).
+
+Since you will also configure Mutual Transport Layer Security (mTLS) on the server running ForgeRock Open Access Manager, each time a device interfaces with ForgeRock, it is requested *and required* to present it's client certificate. 
+
+The authentication tree below is configured to extract the device's unique identifier from the CN field in the presented certificate; with that in hand, the authentication tree next makes a ReST query to the MDM for Device Posture information.
+
+The MDM can return 1 of 3 results:
+
+1. the device is unknown to the MDM
+2. the device is known to the MDM but fails to pass their Compliance checklist (ie, OS is not up to date, phone is jailbroken, PIN has not been set, etc)
+3. the device is known and it passes their Compliance checklist
+
+Only in event #3 is returned does the authentication tree carry on; if #2 is returned an additional step-up challenge could optionally be issued; if #1 is returned tree exits altogether. 
 
 
-Copy the .jar file from the ../target directory into the ../web-container/webapps/openam/WEB-INF/lib directory where AM is deployed.  Restart the web container to pick up the new node.  The node will then appear in the authentication trees components palette.
+### Configuration: Microsoft Intune and mTLS
+
+The details for configuring Intune and Mutual Authentication are [here](./config/Intune.md).
 
 
-cURL statements to be used for testing:
-getting an access token:
+### Configuration: ForgeRock Authentication Node
 
-curl -X POST \
-  https://login.microsoftonline.com/94781b09-3000-41eb-93bc-c7915241c40e/oauth2/v2.0/token \
-  -H 'Accept: */*' \
-  -H 'Accept-Encoding: gzip, deflate' \
-  -H 'Cache-Control: no-cache' \
-  -H 'Connection: keep-alive' \
-  -H 'Content-Length: 275' \
-  -H 'Content-Type: application/x-www-form-urlencoded' \
-  -H 'Cookie: x-ms-gateway-slice=prod; stsservicecookie=ests; fpc=AtHZFoCUNT9JpXi2C8G9irlG0RR2AQAAAHOtV9UOAAAA' \
-  -H 'Host: login.microsoftonline.com' \
-  -H 'User-Agent: PostmanRuntime/7.19.0' \
-  -H 'cache-control: no-cache' \
-  -d 'Content-Type=application%2Fx-www-form-urlencoded&client_id=cb17ccd4-0e70-48dc-a694-e6910418c70b&client_secret=%5Ba)PaGdK1*%7C0Ci1q&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&grant_type=password&username=info%40javaservlets.onmicrosoft.com&password=Ch2019angeit!'
-  
- retrieving a device ID's compliancy:
- curl -X GET \
-   https://graph.microsoft.com/v1.0/deviceManagement/manageddevices/988f8437-99b4-470d-9b60-087b65dc1649 \
-   -H 'Authorization: (the token from above)
- 
- Scratch File:
- 
- import com.example.microsoft.UserInfo;
- import org.forgerock.openam.annotations.sm.Attribute;
- 
- class Scratch {
-     public static void main(String[] args) {
-         String device_id="988f8437-99b4-470d-9b60-087b65dc1649"; // noncompliant ipad id =
-         String device_id2="32e2fd8d-aa20-4557-b862-cb915e5ad640";
- 
-         String msScope="https://graph.microsoft.com/.default";
-         String msClientId="cb17ccd4-0e70-48dc-a694-e6910418c70b";
-         String msClientSecret="[a)PaGdK1*|0Ci1q";
-         String msTokenUrl="https://login.microsoftonline.com/94781b09-3000-41eb-93bc-c7915241c40e/oauth2/v2.0/token";
-         String msComplianceUrl="https://graph.microsoft.com/v1.0/deviceManagement/manageddevices/";
-         String msAdmin="info@javaservlets.onmicrosoft.com";
-         String msPassword="Ch2019angeit!";
- 
-         UserInfo userinfo=new UserInfo(msTokenUrl, msScope, msAdmin, msPassword, msClientId, msClientSecret);
-         userinfo.getStatus(msComplianceUrl, device_id);
- 
- 
-     }
- }
- 
-The code in this repository has binary dependencies that live in the ForgeRock maven repository. Maven can be configured to authenticate to this repository by following the following [ForgeRock Knowledge Base Article](https://backstage.forgerock.com/knowledge/kb/article/a74096897).
 
-**SPECIFIC BUILD INSTRUCTIONS HERE**
+Once the above has been done and verified, configure an Authentication Tree as follows:
 
-**SCREENSHOTS ARE GOOD LIKE BELOW**
+1. Download the Auth Node that extracts the unique identifier from the x509 from https://github.com/javaservlets/CertificateReader
+2. Copy that CertificateReader.jar *plus* the Intune*.jar from the below ../target directory into the ../web-container/webapps/openam/WEB-INF/lib directory where AM is deployed.
+3. Restart the web container to pick up the new nodes.  The two nodes will then appear in the authentication trees components palette.
+4. From the components pallete select the Certificate Reader node and configure it this manner: ![ScreenShot](./config/1.png)
+5. From the components pallete select the Intune node and configure it this manner: ![ScreenShot](./config/2.png)
+6. From the components pallete select the Success node and configure it this manner: ![ScreenShot](./config/3.png)
+7. For the case where the MDM returns a 'non-compliant' status, it is up to you to decide if you want to perform an additional step-up challenge, display a message, redirect, account lockout, etc.
+8. Click on the Intune node and enter your account-specific values for:
+	9. msClientID
+	10. Intune Client Secret
+	11. Token Endpoint
+	12. Admin Username
+	13. Admin Password
 
-![ScreenShot](./example.png)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-
 
 The sample code described herein is provided on an "as is" basis, without warranty of any kind, to the fullest extent permitted by law. ForgeRock does not warrant or guarantee the individual success developers may have in implementing the sample code on their development platforms or in production configurations.
 
