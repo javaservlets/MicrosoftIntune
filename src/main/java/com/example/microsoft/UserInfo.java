@@ -89,13 +89,13 @@ public class UserInfo {
             HttpEntity responseEntity=response.getEntity();
             if (responseEntity != null) {
                 String entity_str=EntityUtils.toString(responseEntity);
-                log(" userInfo. getStatus: " + entity_str);
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK && entity_str.contains("compliant")) { //graph api returns complianceState: compliant
+                //log(" userInfo. getStatus: " + entity_str);
+                if (entity_str.toLowerCase().contains("compliant")) { //graph api returns complianceState: compliant
                     compliance_status="compliant";
-                } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK && entity_str.contains("unknown")) {
+                } else if (entity_str.toLowerCase().contains("notfound")) {
                     //graph api returns complianceState: unknown (StripNoise() (below) might be a more thorough check but this seems to work as is
                     compliance_status="noncompliant";
-                } else if (entity_str.contains("BadRequest")) { // if device is unknown this what MS returns (btw do not check httpStatus since srv can throw diff codes n this situation
+                } else { // if (entity_str.contains("error")) { // if device is unknown this what MS returns (btw do not check httpStatus since srv can throw diff codes n this situation
                     compliance_status="unknown";
                 }
             } else {

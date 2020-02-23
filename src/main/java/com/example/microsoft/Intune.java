@@ -32,6 +32,9 @@ public class Intune implements Node {
         String status = userinfo.getStatus(config.msComplianceUrl(), search_key); // qry could be for either "is" ENROLLED or COMPLIANT
         Action action = null ;
 
+        debug.error("+++   finally  " + status.toString());
+
+
         if (status.equals("compliant")) {
             action = goTo(MyOutcome.COMPLIANT).build();
         } else if (status.equals("noncompliant")) {
@@ -118,12 +121,10 @@ public class Intune implements Node {
 
     }
 
-
     @Inject
     public Intune(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
         this.config = config;
         this.coreWrapper = coreWrapper;
     }
-
 
 }
