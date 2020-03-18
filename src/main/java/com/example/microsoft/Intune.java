@@ -34,7 +34,6 @@ public class Intune implements Node {
 
         debug.error("+++   finally  " + status.toString());
 
-
         if (status.equals("compliant")) {
             action = goTo(MyOutcome.COMPLIANT).build();
         } else if (status.equals("noncompliant")) {
